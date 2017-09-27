@@ -1,18 +1,27 @@
+import java.util.Arrays;
 
 public class State {
-	private int row;
-	private int col;
-	
-	public State(int row, int col) {
-		this.row = row;
-		this.col = col;
+	private int[] stateData;
+
+	public State(int... stateData) {
+		this.stateData = stateData;
 	}
 
-	public int getRow() {
-		return row;
+	public int[] getStateData() {
+		return stateData;
 	}
 
-	public int getCol() {
-		return col;
+	@Override
+	public String toString() {
+		return Arrays.toString(stateData);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof State)) {
+			return false;
+		}
+		State o = (State) other;
+		return Arrays.equals(stateData, o.stateData);
 	}
 }

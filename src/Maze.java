@@ -9,10 +9,10 @@ public class Maze {
 
 	public Maze(long seed) {
 		random = new Random(seed);
-		map = new Color[8][8];
+		map = new Color[16][16];
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[i].length; j++) {
-				map[i][j] = random.nextDouble() < 0.5 ? Color.WHITE : Color.BLACK;
+				map[i][j] = random.nextDouble() < 0.75 ? Color.WHITE : Color.BLACK;
 			}
 		}
 	}
@@ -24,8 +24,31 @@ public class Maze {
 				g.setColor(map[r][c]);
 				int width = (int) (size.getWidth() / map.length);
 				int height = (int) (size.getHeight() / map[r].length);
-				g.fillRect(r * width, (map[r].length - c) * height, width, height);
+				g.fillRect(r * width, c * height, width, height);
 			}
+		}
+	}
+
+	public boolean isEmpty(Location location) {
+		return map[location.getRow()][location.getCol()].equals(Color.WHITE);
+	}
+
+	public Color get(Location location) {
+		if (isValid(location)) {
+			return map[location.getRow()][location.getCol()];
+		} else {
+			return null;
+		}
+	}
+
+	public boolean isValid(Location location) {
+		return location.getRow() >= 0 && location.getRow() < map.length && location.getCol() >= 0
+				&& location.getCol() < map[location.getRow()].length;
+	}
+
+	public void set(Location location, Color color) {
+		if (isValid(location)) {
+			map[location.getRow()][location.getCol()] = color;
 		}
 	}
 }
