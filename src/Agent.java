@@ -3,11 +3,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class Agent {
-	private Map<Entry<State, Action>, Double> memory;
-	private List<Entry<State, Action>> actionHistory;
+	public static Map<String, Double> memory;
+	private List<String> actionHistory;
 
 	private Location location;
 	private Location startLocation;
@@ -16,8 +15,8 @@ public class Agent {
 	private int stepsToReward;
 
 	public Agent(Maze maze, Location location) {
-		memory = new HashMap<Map.Entry<State, Action>, Double>();
-		actionHistory = new ArrayList<Entry<State, Action>>();
+		memory = new HashMap<String, Double>();
+		actionHistory = new ArrayList<String>();
 
 		this.location = location;
 		startLocation = location;
@@ -29,16 +28,16 @@ public class Agent {
 		Location lastLocation = location;
 		switch (nextAction(new State(location.getRow(), location.getCol()))) {
 		case UP:
-			location = new Location(location.getRow() - 1, location.getCol());
-			break;
-		case DOWN:
-			location = new Location(location.getRow() + 1, location.getCol());
-			break;
-		case LEFT:
 			location = new Location(location.getRow(), location.getCol() - 1);
 			break;
-		case RIGHT:
+		case DOWN:
 			location = new Location(location.getRow(), location.getCol() + 1);
+			break;
+		case LEFT:
+			location = new Location(location.getRow() - 1, location.getCol());
+			break;
+		case RIGHT:
+			location = new Location(location.getRow() + 1, location.getCol());
 			break;
 		}
 		if (maze.isValid(location) && maze.get(location).equals(Color.YELLOW)) {
@@ -48,8 +47,9 @@ public class Agent {
 			stepsToReward = 0;
 			location = startLocation;
 			maze.set(lastLocation, Color.WHITE);
+			maze.set(startLocation, Color.BLUE);
 		} else if (!maze.isValid(location) || !maze.isEmpty(location)) {
-			giveReward(-1);
+			// giveReward(-.1);
 			location = lastLocation;
 		} else {
 			maze.set(lastLocation, Color.WHITE);
@@ -59,41 +59,50 @@ public class Agent {
 
 	public Action nextAction(State state) {
 		double maxScore = Integer.MIN_VALUE;
-		Action bestAction = null;
+		List<Action> bestActions = new ArrayList<>();
 		for (Action action : Action.values()) {
-			Entry<State, Action> entry = new MyEntry<State, Action>(state, action);
+			String entry = state.toString() + action.toString();
 			if (memory.get(entry) == null) {
-				memory.put(entry, Math.random());
+				memory.put(entry, 0.0);
 			}
 			if (memory.get(entry) > maxScore) {
 				maxScore = memory.get(entry);
-				bestAction = action;
+				bestActions.clear();
+				bestActions.add(action);
+			} else if (memory.get(entry) == maxScore) {
+				bestActions.add(action);
 			}
 		}
-		if (bestAction != null && Math.random() < 0.75) {
+		Action bestAction = bestActions.get((int) (Math.random() * bestActions.size()));
+		if (bestAction != null && Math.random() < 0.9) {
 			// System.out.println(maxScore);
-			actionHistory.add(new MyEntry<>(state, bestAction));
+			addEntryToHistory(state.toString() + bestAction.toString());
 			return bestAction;
 		} else {
 			Action randomAction = Action.values()[(int) (Math.random() * Action.values().length)];
-			actionHistory.add(new MyEntry<>(state, randomAction));
+			addEntryToHistory(state.toString() + randomAction.toString());
 			return randomAction;
 		}
 	}
 
-	public void giveReward(double reward) {
-		double rewardLossPerAction = reward / actionHistory.size();
+	public void addEntryToHistory(String entry) {
 		for (int i = actionHistory.size() - 1; i >= 0; i--) {
-			Entry<State, Action> entry = actionHistory.get(i);
-			if (memory.get(entry) == null) {
-				memory.put(entry, Math.random());
+			if (actionHistory.get(i).equals(entry)) {
+				actionHistory.remove(i);
 			}
-			if (reward > 0)
-				System.out.println(memory.get(entry));
-			memory.put(entry, memory.get(entry) + reward);
-			reward -= rewardLossPerAction;
 		}
+		actionHistory.add(entry);
+	}
 
+	public void giveReward(double reward) {
+		String spaces = "";
+		for (int i = actionHistory.size() - 1; i >= 0; i--) {
+			String entry = actionHistory.get(i);
+			if (memory.get(entry) == null) {
+				memory.put(entry, 0.0);
+			}
+			memory.put(entry, memory.get(entry) + reward * Math.pow(i / (double) actionHistory.size(), 2));
+		}
 	}
 
 	public Location getLocation() {

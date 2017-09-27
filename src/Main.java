@@ -15,7 +15,7 @@ public class Main {
 	private static boolean fastMode;
 
 	public static void main(String[] args) {
-		maze = new Maze(1);
+		maze = new Maze(6);
 		frame = new JFrame();
 		artist = new Artist();
 		frame.add(artist);
@@ -45,7 +45,7 @@ public class Main {
 		});
 		frame.setVisible(true);
 		maze.set(new Location(0, 0), Color.BLUE);
-		maze.set(new Location(7, 7), Color.YELLOW);
+		maze.set(new Location(10, 10), Color.YELLOW);
 		agent = new Agent(maze, new Location(0, 0));
 
 		while (true) {
