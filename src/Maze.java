@@ -9,7 +9,7 @@ public class Maze {
 
 	public Maze(long seed) {
 		random = new Random(seed);
-		map = new Color[16][16];
+		map = new Color[Main.row][Main.col];
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[i].length; j++) {
 				map[i][j] = random.nextDouble() < 0.75 ? Color.WHITE : Color.BLACK;

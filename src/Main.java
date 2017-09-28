@@ -3,19 +3,23 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Main {
+	public static int row = 100;
+	public static int col = 100;
+
 	private static Maze maze;
 	private static JFrame frame;
 	private static Artist artist;
-	private static Agent agent;
+	private static MazeSolver agent;
 	private static boolean fastMode;
 
 	public static void main(String[] args) {
-		maze = new Maze(6);
+		maze = new Maze(0);
 		frame = new JFrame();
 		artist = new Artist();
 		frame.add(artist);
@@ -45,8 +49,12 @@ public class Main {
 		});
 		frame.setVisible(true);
 		maze.set(new Location(0, 0), Color.BLUE);
-		maze.set(new Location(10, 10), Color.YELLOW);
-		agent = new Agent(maze, new Location(0, 0));
+		maze.set(new Location(row / 2, col / 2), Color.YELLOW);
+		// maze.set(new Location(50 + (int) (Math.random() * 50), 50 + (int)
+		// (Math.random() * 50)), Color.YELLOW);
+		// maze.set(new Location(50 + (int) (Math.random() * 50), 50 + (int)
+		// (Math.random() * 50)), Color.YELLOW);
+		agent = new MazeSolver(maze, new Location(0, 0));
 
 		while (true) {
 			if (!fastMode) {
