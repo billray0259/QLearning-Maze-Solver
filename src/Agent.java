@@ -20,6 +20,7 @@ public abstract class Agent {
 			actionScores[i] = memory.get(entry);
 		}
 		double[] actionProbabilities = Util.softmax(actionScores);
+//		System.out.println(Arrays.toString(actionProbabilities));
 		double choice = Math.random();
 		int actionIndex = Action.values().length - 1;
 		for (int i = 0; i < actionProbabilities.length; i++) {
@@ -44,6 +45,7 @@ public abstract class Agent {
 	}
 
 	public void giveReward(double reward) {
+		String spaces = "";
 		for (int i = actionHistory.size() - 1; i >= 0; i--) {
 			String entry = actionHistory.get(i);
 			if (memory.get(entry) == null) {

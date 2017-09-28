@@ -48,7 +48,7 @@ public class MazeSolver extends Agent {
 			// giveShortTermReward(-0.1);
 			location = lastLocation;
 		} else {
-//			giveShortTermReward(-0.025);
+			// giveShortTermReward(-0.025);
 			maze.set(lastLocation, Color.WHITE);
 			maze.set(location, Color.BLUE);
 		}

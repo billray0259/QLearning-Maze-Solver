@@ -9,8 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Main {
-	public static int row = 100;
-	public static int col = 100;
+	public static int row = 50;
+	public static int col = 50;
 
 	private static Maze maze;
 	private static JFrame frame;
