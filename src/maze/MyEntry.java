@@ -1,3 +1,4 @@
+package maze;
 import java.util.Map.Entry;
 
 public class MyEntry<K, V> implements Entry<K, V> {

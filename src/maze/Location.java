@@ -1,3 +1,4 @@
+package maze;
 
 public class Location {
 	private int row;

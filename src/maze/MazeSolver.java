@@ -1,8 +1,11 @@
+package maze;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import qlearning.Agent;
+import qlearning.State;
 
 public class MazeSolver extends Agent {
 	private Location location;
@@ -37,17 +40,19 @@ public class MazeSolver extends Agent {
 			break;
 		}
 		if (maze.isValid(location) && maze.get(location).equals(Color.YELLOW)) {
-			giveReward(100);
+			giveReward(1000 / Math.log(stepsToReward));
 			actionHistory.clear();
-			System.out.println(stepsToReward);
+			stepsToRewardMovingAverage = stepsToRewardMovingAverage * 0.8 + stepsToReward * 0.2;
+			System.out.println(stepsToRewardMovingAverage);
 			stepsToReward = 0;
 			location = startLocation;
 			maze.set(lastLocation, Color.WHITE);
 			maze.set(startLocation, Color.BLUE);
 		} else if (!maze.isValid(location) || !maze.isEmpty(location)) {
-			// giveShortTermReward(-0.1);
+//			giveReward(-0.03);
 			location = lastLocation;
 		} else {
+//			giveReward(-0.01);
 			// giveShortTermReward(-0.025);
 			maze.set(lastLocation, Color.WHITE);
 			maze.set(location, Color.BLUE);

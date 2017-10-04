@@ -1,11 +1,15 @@
-import java.util.Arrays;
+package qlearning;
+
 import java.util.List;
 import java.util.Map;
 
 public abstract class Agent {
-	protected Map<String, Double> memory;
+	// TODO change memory to private... I only have it like this so Maze.java can
+	// see it.
+	public static Map<String, Double> memory;
 	protected List<String> actionHistory;
 	protected int stepsToReward;
+	protected double stepsToRewardMovingAverage;
 
 	public abstract void update();
 
@@ -15,12 +19,12 @@ public abstract class Agent {
 			Action action = Action.values()[i];
 			String entry = state.toString() + action.toString();
 			if (memory.get(entry) == null) {
-				memory.put(entry, 0.0);
+				memory.put(entry, getInitialScore());
 			}
 			actionScores[i] = memory.get(entry);
 		}
 		double[] actionProbabilities = Util.softmax(actionScores);
-//		System.out.println(Arrays.toString(actionProbabilities));
+		// System.out.println(Arrays.toString(actionProbabilities));
 		double choice = Math.random();
 		int actionIndex = Action.values().length - 1;
 		for (int i = 0; i < actionProbabilities.length; i++) {
@@ -49,9 +53,9 @@ public abstract class Agent {
 		for (int i = actionHistory.size() - 1; i >= 0; i--) {
 			String entry = actionHistory.get(i);
 			if (memory.get(entry) == null) {
-				memory.put(entry, 0.0);
+				memory.put(entry, getInitialScore());
 			}
-			memory.put(entry, memory.get(entry) + reward * Math.pow(i / (double) actionHistory.size(), 2));
+			memory.put(entry, memory.get(entry) * 0.9 + 0.2 * reward * Math.pow(i / (double) actionHistory.size(), 2));
 		}
 	}
 
@@ -59,9 +63,13 @@ public abstract class Agent {
 		if (actionHistory.size() > 0) {
 			String entry = actionHistory.get(actionHistory.size() - 1);
 			if (memory.get(entry) == null) {
-				memory.put(entry, 0.0);
+				memory.put(entry, getInitialScore());
 			}
 			memory.put(entry, memory.get(entry) + reward);
 		}
+	}
+
+	private double getInitialScore() {
+		return 0;
 	}
 }
