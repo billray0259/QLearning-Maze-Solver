@@ -13,7 +13,7 @@ public class Util {
 		for (int i = 0; i < values.length; i++) {
 			softmax[i] = Math.pow(Math.E, values[i]) / sum;
 			if (Double.isInfinite(softmax[i])) {
-				System.out.println(values[i] + ", " + sum);
+//				System.out.println(values[i] + ", " + sum);
 				if (Double.isInfinite(Math.pow(Math.E, values[i]))) {
 					softmax[i] = Integer.MAX_VALUE / sum;
 				}

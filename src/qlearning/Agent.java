@@ -1,75 +1,84 @@
 package qlearning;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class Agent {
-	// TODO change memory to private... I only have it like this so Maze.java can
-	// see it.
 	public static Map<String, Double> memory;
-	protected List<String> actionHistory;
-	protected int stepsToReward;
-	protected double stepsToRewardMovingAverage;
+	protected State lastState;
+	protected Action lastAction;
+	protected double alpha;
+	protected double gamma;
+	protected double epsilon;
 
-	public abstract void update();
+	public Agent() {
+		memory = new HashMap<>();
+		alpha = 1;
+		gamma = 1;
+		epsilon = 0.01;
+	}
 
-	public Action nextAction(State state) {
-		double[] actionScores = new double[Action.values().length];
-		for (int i = 0; i < actionScores.length; i++) {
-			Action action = Action.values()[i];
-			String entry = state.toString() + action.toString();
+	public Action nextAction(State currentState, double rewardForGettingToThisState) {
+		Action[] actions = Action.values();
+		// Find the best action for 'currentState'
+		double maxScore = Integer.MIN_VALUE;
+		List<Action> bestActions = new ArrayList<>();
+		for (int i = 0; i < actions.length; i++) {
+			Action potentialAction = actions[i];
+			String entry = currentState.toString() + potentialAction.toString();
 			if (memory.get(entry) == null) {
-				memory.put(entry, getInitialScore());
+				memory.put(entry, getInitialValue());
 			}
-			actionScores[i] = memory.get(entry);
-		}
-		double[] actionProbabilities = Util.softmax(actionScores);
-		// System.out.println(Arrays.toString(actionProbabilities));
-		double choice = Math.random();
-		int actionIndex = Action.values().length - 1;
-		for (int i = 0; i < actionProbabilities.length; i++) {
-			choice -= actionProbabilities[i];
-			if (choice <= 0) {
-				actionIndex = i;
-				break;
+			double score = memory.get(entry);
+			if (score > maxScore) {
+				maxScore = score;
+				bestActions.clear();
+				bestActions.add(potentialAction);
+			} else if (score == maxScore) {
+				bestActions.add(potentialAction);
+				// If more than one actions have the same maximum score then add then to a list
+				// and pick and action from that list at random
 			}
 		}
-		Action action = Action.values()[actionIndex];
-		addEntryToHistory(state.toString() + action.toString());
-		return action;
+		Action finalAction;
+		Action bestAction = bestActions.get((int) (Math.random() * bestActions.size()));
+		// Epsilon greedy method. There's a chance a random action will be picked.
+		if (Math.random() < epsilon) {
+			finalAction = actions[(int) (Math.random() * actions.length)];
+		} else {
+			finalAction = bestAction;
+		}
+		
+		if (lastState != null && lastAction != null) {
+			// Update the value of the last state-action pair
+			double lastEntryScore = Q(lastState, lastAction) + alpha
+					* (rewardForGettingToThisState + gamma * Q(currentState, bestAction) - Q(lastState, lastAction));
+			storeQ(lastState, lastAction, lastEntryScore);
+		}
+
+		lastState = currentState;
+		lastAction = finalAction;
+		return finalAction;
 	}
 
-	public void addEntryToHistory(String entry) {
-		for (int i = actionHistory.size() - 1; i >= 0; i--) {
-			if (actionHistory.get(i).equals(entry)) {
-				actionHistory.remove(i);
-			}
-		}
-		actionHistory.add(entry);
+	private double storeQ(State state, Action action, double value) {
+		return memory.put(state.toString() + action.toString(), value);
 	}
 
-	public void giveReward(double reward) {
-		String spaces = "";
-		for (int i = actionHistory.size() - 1; i >= 0; i--) {
-			String entry = actionHistory.get(i);
-			if (memory.get(entry) == null) {
-				memory.put(entry, getInitialScore());
-			}
-			memory.put(entry, memory.get(entry) * 0.9 + 0.2 * reward * Math.pow(i / (double) actionHistory.size(), 2));
+	private double Q(State state, Action action) {
+		String key = state.toString() + action.toString();
+		if (memory.get(key) == null) {
+			double initialValue = getInitialValue();
+			memory.put(key, initialValue);
+			return initialValue;
+		} else {
+			return memory.get(key);
 		}
 	}
 
-	public void giveShortTermReward(double reward) {
-		if (actionHistory.size() > 0) {
-			String entry = actionHistory.get(actionHistory.size() - 1);
-			if (memory.get(entry) == null) {
-				memory.put(entry, getInitialScore());
-			}
-			memory.put(entry, memory.get(entry) + reward);
-		}
-	}
-
-	private double getInitialScore() {
-		return 0;
+	private double getInitialValue() {
+		return 100;
 	}
 }

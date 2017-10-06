@@ -1,4 +1,5 @@
 package maze;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,8 +11,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Main {
-	public static int row = 50;
-	public static int col = 50;
+	public static int row = 100;
+	public static int col = 100;
 
 	private static Maze maze;
 	private static JFrame frame;
@@ -49,13 +50,13 @@ public class Main {
 			}
 		});
 		frame.setVisible(true);
-		maze.set(new Location(0, 0), Color.BLUE);
 		maze.set(new Location(row / 2, col / 2), Color.YELLOW);
 		// maze.set(new Location(50 + (int) (Math.random() * 50), 50 + (int)
 		// (Math.random() * 50)), Color.YELLOW);
 		// maze.set(new Location(50 + (int) (Math.random() * 50), 50 + (int)
 		// (Math.random() * 50)), Color.YELLOW);
 		agent = new MazeSolver(maze, new Location(0, 0));
+		maze.setAgentLocation(agent.getLocation());
 
 		while (true) {
 			if (!fastMode) {
